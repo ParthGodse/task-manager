@@ -1,25 +1,32 @@
 from fastapi import Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 
 from app.models import User
 from app.core.config import settings
-from app.database import get_db
+from app.core.database import get_db
 
-# Hook AuthJWT to read your secret + algorithm from settings
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+# JWT configuration
 @AuthJWT.load_config
 def get_jwt_config():
-    return settings  # AuthJWT will look for attributes named JWT_SECRET and JWT_ALGORITHM
+    return settings
 
+# Dependency to get current user
 def get_current_user(
     Authorize: AuthJWT = Depends(),
     db: Session = Depends(get_db),
 ) -> User:
-    """
-    Dependency to inject the authenticated User instance.
-    - Verifies the JWT in the Authorization header.
-    - Fetches the corresponding User from the DB.
-    """
     try:
         Authorize.jwt_required()
     except Exception:
