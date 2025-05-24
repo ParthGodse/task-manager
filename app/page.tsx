@@ -1,32 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { DonutChart } from "@/components/DonutChart";
 import { ProjectHeader } from "@/components/ProjectHeader";
 import { KanbanBoard } from "@/components/KanbanBoard";
-import { Project } from "@/lib/types";
-
-const mockProjects: Project[] = [
-  {
-    id: "1",
-    name: "Website Redesign",
-    tasks: [
-      { id: "a", title: "Design Mockups", status: "todo" },
-      { id: "b", title: "Set up Dev Env", status: "todo" },
-      { id: "c", title: "Implement Header", status: "in-progress" },
-    ],
-  },
-  {
-    id: "2",
-    name: "Marketing Campaign",
-    tasks: [
-      { id: "d", title: "Write Email Copy", status: "todo" },
-      { id: "e", title: "Schedule Newsletter", status: "in-progress" },
-      { id: "f", title: "Analyze Open Rates", status: "done" },
-    ],
-  },
-];
+import { Project, Task } from "@/lib/types";
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -65,6 +44,35 @@ export default function Home() {
     )
   );
 };
+
+  const handleDragTask = (taskId: string, newStatus: Task["status"]) => {
+  setProjects((prev) =>
+    prev.map((proj) =>
+      proj.id === selectedId
+        ? {
+            ...proj,
+            tasks: proj.tasks.map((task) =>
+              task.id === taskId ? { ...task, status: newStatus } : task
+            ),
+          }
+        : proj
+    )
+  );
+};
+
+useEffect(() => {
+  const stored = localStorage.getItem("kanban-projects");
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    setProjects(parsed);
+    setSelectedId(parsed[0]?.id ?? null);
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("kanban-projects", JSON.stringify(projects));
+}, [projects]);
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar onAddProject={handleAddProject}/>
@@ -99,7 +107,7 @@ export default function Home() {
               onSelect={setSelectedId}
               onAddTask={handleAddTask}
             />
-            <KanbanBoard tasks={selected.tasks} />
+            <KanbanBoard tasks={selected.tasks} onDragEnd={handleDragTask}/>
           </>
         )}
         </div>
