@@ -17,30 +17,40 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Task } from "@/lib/types";
+import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 export function EditTaskDialog({
   task,
   onSave,
-  trigger,
+  open,
+  setOpen,
 }: {
   task: Task;
-  trigger: React.ReactNode;
-  onSave: (title: string, status: Task["status"]) => void;
+  open: boolean;
+  setOpen: (v: boolean) => void;
+  onSave: (title: string, status: Task["status"], description: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [status, setStatus] = useState<Task["status"]>(task.status);
+  const [description, setDescription] = useState(task.description ?? "");
 
   const handleSave = () => {
-    onSave(title, status);
+    onSave(title.trim(), status, description.trim());
+    toast("Task updated");
     setOpen(false);
   };
+  useEffect(() => {
+  setTitle(task.title);
+  setStatus(task.status);
+  setDescription(task.description ?? "");
+}, [task]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {/* <DialogTrigger asChild>{trigger}</DialogTrigger> */}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Task</DialogTitle>
@@ -51,6 +61,12 @@ export function EditTaskDialog({
             placeholder="Task title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+          />
+          <Textarea
+            placeholder="Task description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-h-[80px]"
           />
 
           <Select value={status} onValueChange={(val) => setStatus(val as Task["status"])}>

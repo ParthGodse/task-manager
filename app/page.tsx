@@ -1,11 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
-import { DonutChart } from "@/components/DonutChart";
+// import { DonutChart } from "@/components/DonutChart";
 import { ProjectHeader } from "@/components/ProjectHeader";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { Project, Task } from "@/lib/types";
+
+const DonutChart = dynamic(() => import("@/components/DonutChart").then(mod => mod.DonutChart), {
+  ssr: false,
+});
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -20,6 +25,7 @@ export default function Home() {
   : 0;
 
   const handleAddProject = (name: string) => {
+    if (!name.trim()) return;
   const newProject: Project = {
     id: Date.now().toString(),
     name,
@@ -29,7 +35,7 @@ export default function Home() {
     setSelectedId(newProject.id);
 };
 
-  const handleAddTask = (title: string, status: Task["status"]) => {
+  const handleAddTask = (title: string, status: Task["status"], description: string) => {
   setProjects((prev) =>
     prev.map((proj) =>
       proj.id === selectedId
@@ -37,7 +43,7 @@ export default function Home() {
             ...proj,
             tasks: [
               ...proj.tasks,
-              { id: Date.now().toString(), title, status},
+              { id: Date.now().toString(), title, status, description},
             ],
           }
         : proj
@@ -73,24 +79,21 @@ const handleDeleteTask = (taskId: string) => {
   );
 };
 
-const handleEditTask = (task: Task) => {
-  const newTitle = prompt("Edit task title", task.title);
-  const newStatus = prompt("Edit status (todo, in-progress, done)", task.status) as Task["status"];
-  if (!newTitle || !["todo", "in-progress", "done"].includes(newStatus)) return;
-
+const handleEditTask = (taskId: string, newTitle: string, newStatus: Task["status"], newDescription: string) => {
   setProjects((prev) =>
     prev.map((proj) =>
       proj.id === selectedId
         ? {
             ...proj,
             tasks: proj.tasks.map((t) =>
-              t.id === task.id ? { ...t, title: newTitle, status: newStatus } : t
+              t.id === taskId ? { ...t, title: newTitle, status: newStatus, description: newDescription } : t
             ),
           }
         : proj
     )
   );
 };
+
 
 const handleDeleteProject = (id: string) => {
   const updated = projects.filter((p) => p.id !== id);
@@ -114,7 +117,10 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar onAddProject={handleAddProject}/>
+      <Navbar onAddProject={handleAddProject} 
+      onDeleteProject={handleDeleteProject}
+      selectedId={selectedId ?? ""}
+      />
 
       <div className="grid grid-cols-5 gap-6 px-6 py-8">
         {/* Left: Donut Chart Column */}
@@ -137,7 +143,7 @@ useEffect(() => {
         </div>
 
         {/* Right: Project Info + Task Board */}
-        <div className="col-span-4 flex flex-col gap-6">
+        <div className="col-span-4 flex flex-col gap-6 ">
          {selected && (
           <>
             <ProjectHeader

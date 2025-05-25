@@ -14,7 +14,7 @@ export function ProjectHeader({
   projects: { id: string; name: string }[];
   selectedId: string;
   onSelect: (id: string) => void;
-  onAddTask: (title: string, status: "todo" | "in-progress" | "done") => void;
+  onAddTask: (title: string, status: "todo" | "in-progress" | "done", description: string) => void;
   onDeleteProject: (id: string) => void;
 }) {
 
@@ -43,18 +43,6 @@ const selectedProject = projects.find((p) => p.id === selectedId);
       </div>
 
       <AddTaskModal onAdd={onAddTask} />
-        <Button
-          variant="destructive"
-          className="text-sm"
-          onClick={() => {
-            if (confirm("Delete this project?")) {
-              onDeleteProject(selectedId);
-            }
-          }}
-        >
-          Delete Project
-        </Button>
-
     </div>
   );
 }

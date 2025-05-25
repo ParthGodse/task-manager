@@ -9,13 +9,23 @@ export function DonutChart({ percent }: { percent: number }) {
     datasets: [
       {
         data: [percent, 100 - percent],
-        backgroundColor: ["#10B981", "#E5E7EB"],
+        backgroundColor: [getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || "#3b82f6",
+          getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || "#e5e7eb",
+        ],
         borderWidth: 0,
         cutout: "80%"
       },
     ],
   };
   const options = {
+    layout:{
+      padding: {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+      },
+    },
     plugins: {
       legend: {
         display: true,
@@ -23,16 +33,17 @@ export function DonutChart({ percent }: { percent: number }) {
         labels: {
           boxWidth: 10,
           font: { size: 12 },
+          color: "rgb(var(--foreground))",
         },
       },
     },
   };
 
   return (
-    <div className="relative w-52 h-52">
+    <div className="relative w-54 h-60 text-foreground p-0">
       <Doughnut data={data} options={options}/>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-2xl font-semibold">{percent}%</span>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <span className="text-3xl font-bold text-primary">{percent}%</span>
       </div>
     </div>
   );
