@@ -5,6 +5,17 @@ import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { Card } from "@/components/ui/card";
 import { Task } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { EditTaskDialog } from "@/components/modals/EditTaskDialog";
+
+
 const STATUS = ["todo", "in-progress", "done"] as const;
 
 type Props = {
@@ -61,49 +72,39 @@ function TaskCard({
 }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task.id,
-    data: {
-      status: task.status,
-    },
+    data: { status: task.status },
   });
 
-  const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
-  };
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
 
   return (
     <Card
       ref={setNodeRef}
-      {...listeners}
-      {...attributes}
       style={style}
-      className="p-3 cursor-grab bg-white shadow-sm relative"
+      className="p-3 bg-white shadow-sm relative"
     >
-      <div className="flex justify-between items-start">
-        <span>{task.title}</span>
-        <div className="flex gap-1 text-gray-400">
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); // prevent drag handler
-              console.log("Edit clicked for", task.title);
-              onEdit();
-            }}
-            title="Edit"
-          >
-            ✏️
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); // prevent drag handler
-              onDelete();
-            }}
-            title="Delete"
-          >
-            🗑️
-          </button>
+      <div className="flex justify-between items-center">
+        {/* Task title with drag */}
+        <div className="cursor-grab flex-1" {...listeners} {...attributes}>
+          {task.title}
         </div>
+
+        {/* Dropdown menu for actions */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="text-gray-400 hover:text-gray-600">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onEdit}>✏️ Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={onDelete}>🗑️ Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </Card>
   );
