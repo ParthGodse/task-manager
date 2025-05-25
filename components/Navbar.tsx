@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { AddProjectModal } from "@/components/modals/AddProjectModal";
 
 export function Navbar({ onAddProject}: { onAddProject: (name:string) => void}) {
   return (
@@ -19,16 +19,7 @@ export function Navbar({ onAddProject}: { onAddProject: (name:string) => void}) 
       />
       </div>
       {/* Right: Button */}
-      <Button
-        onClick={() => {
-          const name = prompt("Enter project name");
-          if (name) onAddProject(name);
-        }}
-        variant="default"
-        className="px-4 py-2 rounded text-sm"
-      >
-        + Create Project
-      </Button>
+      <AddProjectModal onAdd={onAddProject} />
 
     </nav>
   );

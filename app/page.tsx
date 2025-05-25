@@ -29,7 +29,7 @@ export default function Home() {
     setSelectedId(newProject.id);
 };
 
-  const handleAddTask = (title: string) => {
+  const handleAddTask = (title: string, status: Task["status"]) => {
   setProjects((prev) =>
     prev.map((proj) =>
       proj.id === selectedId
@@ -37,7 +37,7 @@ export default function Home() {
             ...proj,
             tasks: [
               ...proj.tasks,
-              { id: Date.now().toString(), title, status: "todo" },
+              { id: Date.now().toString(), title, status},
             ],
           }
         : proj
@@ -59,6 +59,45 @@ export default function Home() {
     )
   );
 };
+
+const handleDeleteTask = (taskId: string) => {
+  setProjects((prev) =>
+    prev.map((proj) =>
+      proj.id === selectedId
+        ? {
+            ...proj,
+            tasks: proj.tasks.filter((t) => t.id !== taskId),
+          }
+        : proj
+    )
+  );
+};
+
+const handleEditTask = (task: Task) => {
+  const newTitle = prompt("Edit task title", task.title);
+  const newStatus = prompt("Edit status (todo, in-progress, done)", task.status) as Task["status"];
+  if (!newTitle || !["todo", "in-progress", "done"].includes(newStatus)) return;
+
+  setProjects((prev) =>
+    prev.map((proj) =>
+      proj.id === selectedId
+        ? {
+            ...proj,
+            tasks: proj.tasks.map((t) =>
+              t.id === task.id ? { ...t, title: newTitle, status: newStatus } : t
+            ),
+          }
+        : proj
+    )
+  );
+};
+
+const handleDeleteProject = (id: string) => {
+  const updated = projects.filter((p) => p.id !== id);
+  setProjects(updated);
+  setSelectedId(updated[0]?.id ?? null);
+};
+
 
 useEffect(() => {
   const stored = localStorage.getItem("kanban-projects");
@@ -106,8 +145,14 @@ useEffect(() => {
               selectedId={selectedId ?? ""}
               onSelect={setSelectedId}
               onAddTask={handleAddTask}
+              onDeleteProject={handleDeleteProject}
             />
-            <KanbanBoard tasks={selected.tasks} onDragEnd={handleDragTask}/>
+            <KanbanBoard
+              tasks={selected.tasks}
+              onDragEnd={handleDragTask}
+              onDeleteTask={handleDeleteTask}
+              onEditTask={handleEditTask}
+            />
           </>
         )}
         </div>

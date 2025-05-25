@@ -1,18 +1,24 @@
 "use client";
 
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { AddTaskModal} from "@/components/modals/AddTaskModal";
+import { Button } from "@/components/ui/button";
 
 export function ProjectHeader({
   projects,
   selectedId,
   onSelect,
   onAddTask,
+  onDeleteProject,
 }: {
   projects: { id: string; name: string }[];
   selectedId: string;
   onSelect: (id: string) => void;
-  onAddTask: (title: string) => void;
+  onAddTask: (title: string, status: "todo" | "in-progress" | "done") => void;
+  onDeleteProject: (id: string) => void;
 }) {
+
+const selectedProject = projects.find((p) => p.id === selectedId);
 
   return (
     <div className="flex justify-between items-center mb-4">
@@ -20,14 +26,11 @@ export function ProjectHeader({
         <p className="text-xs text-muted-foreground tracking-widest">PROJECT</p>
 
         {/* Combined project name + dropdown */}
-        <Select onValueChange={onSelect} defaultValue={selectedId}>
+        <Select onValueChange={onSelect} value={selectedId}>
           <SelectTrigger
             className="w-fit p-0 h-auto border-none bg-transparent text-2xl font-bold focus:ring-0 focus:ring-offset-0"
           >
-            <SelectValue
-              placeholder="Select Project"
-              className="text-2xl font-bold"
-            />
+            <SelectValue placeholder={selectedProject?.name || "Select Project"}/>
           </SelectTrigger>
           <SelectContent>
             {projects.map((p) => (
@@ -39,16 +42,19 @@ export function ProjectHeader({
         </Select>
       </div>
 
-      <button
-      onClick={() => {
-        const title = prompt("Task title?");
-        if (!title) return;
-        onAddTask(title); // callback from parent
-      }}
-      className="bg-black text-white px-4 py-2 rounded text-sm"
-    >
-      + Add Task
-    </button>
+      <AddTaskModal onAdd={onAddTask} />
+        <Button
+          variant="destructive"
+          className="text-sm"
+          onClick={() => {
+            if (confirm("Delete this project?")) {
+              onDeleteProject(selectedId);
+            }
+          }}
+        >
+          Delete Project
+        </Button>
+
     </div>
   );
 }
