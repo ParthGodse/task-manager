@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { ProjectHeader } from "@/components/ProjectHeader";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { Project, Task } from "@/lib/types";
+import { toast } from "sonner";
 
 const DonutChart = dynamic(() => import("@/components/DonutChart").then(mod => mod.DonutChart), {
   ssr: false,
@@ -15,6 +16,7 @@ const DonutChart = dynamic(() => import("@/components/DonutChart").then(mod => m
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const selected = projects.find((p) => p.id === selectedId);
 
@@ -25,7 +27,10 @@ export default function Home() {
   : 0;
 
   const handleAddProject = (name: string) => {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+    toast.error("Project name is required");
+    return;
+  }
   const newProject: Project = {
     id: Date.now().toString(),
     name,
@@ -33,10 +38,20 @@ export default function Home() {
     };
     setProjects((prev) => [...prev, newProject]);
     setSelectedId(newProject.id);
+  toast(
+    <>
+      <div className="font-bold">New project created</div>
+      <div>{`"${name}" has been added.`}</div>
+    </>
+  );
 };
 
   const handleAddTask = (title: string, status: Task["status"], description: string) => {
-  setProjects((prev) =>
+   if (!title.trim()) {
+    toast.error("Task title is required");
+    return;
+  }
+    setProjects((prev) =>
     prev.map((proj) =>
       proj.id === selectedId
         ? {
@@ -48,6 +63,12 @@ export default function Home() {
           }
         : proj
     )
+  );
+  toast(
+    <>
+      <div className="font-bold">Task added</div>
+      <div>Added to "{status.replace("-", " ")}" column.</div>
+    </>
   );
 };
 
@@ -77,6 +98,9 @@ const handleDeleteTask = (taskId: string) => {
         : proj
     )
   );
+  toast(
+    <div className="font-bold text-red-600">Task deleted</div>
+  );
 };
 
 const handleEditTask = (taskId: string, newTitle: string, newStatus: Task["status"], newDescription: string) => {
@@ -91,6 +115,12 @@ const handleEditTask = (taskId: string, newTitle: string, newStatus: Task["statu
           }
         : proj
     )
+  );
+  toast(
+    <>
+      <div className="font-bold">Task updated</div>
+      <div>Your changes have been saved.</div>
+    </>
   );
 };
 
@@ -120,6 +150,7 @@ useEffect(() => {
       <Navbar onAddProject={handleAddProject} 
       onDeleteProject={handleDeleteProject}
       selectedId={selectedId ?? ""}
+      onSearch={(query: string) => setSearchQuery(query)}
       />
 
       <div className="grid grid-cols-5 gap-6 px-6 py-8">
@@ -158,6 +189,7 @@ useEffect(() => {
               onDragEnd={handleDragTask}
               onDeleteTask={handleDeleteTask}
               onEditTask={handleEditTask}
+              searchQuery={searchQuery}
             />
           </>
         )}

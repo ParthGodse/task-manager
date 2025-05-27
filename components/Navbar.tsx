@@ -7,10 +7,12 @@ import { Trash } from "lucide-react";
 export function Navbar({ onAddProject, 
   onDeleteProject, 
   selectedId,
+  onSearch,
 }: { 
   onAddProject: (name:string) => void; 
   onDeleteProject: (id: string) => void; 
   selectedId: string;
+  onSearch: (query: string) => void;
 }) {
   return (
     <nav className="flex items-center justify-between px-6 py-4 border-b bg-white shadow-sm">
@@ -23,7 +25,8 @@ export function Navbar({ onAddProject,
       <Input
         type="text"
         placeholder="Search..."
-        className="w-[400px] translate-y-1 ml-10" // adjust vertical alignment
+        className="w-[400px] translate-y-1 ml-10" 
+        onChange={(e) => onSearch(e.target.value)}
       />
       </div>
       {/* Right: Button */}

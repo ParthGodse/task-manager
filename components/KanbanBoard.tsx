@@ -25,14 +25,15 @@ type Props = {
   onDragEnd: (taskId: string, newStatus: Task["status"]) => void;
   onDeleteTask: (taskId: string) => void;
   onEditTask: (taskId: string, newTitle: string, newStatus: Task["status"], newDescription: string) => void;
+  searchQuery?: string;
 };
 
-export function KanbanBoard({ tasks, onDragEnd, onDeleteTask, onEditTask }: Props) {
+export function KanbanBoard({ tasks, onDragEnd, onDeleteTask, onEditTask, searchQuery }: Props) {
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <div className="grid grid-cols-3 gap-4">
         {STATUS.map((status) => (
-          <Column key={status} status={status} tasks={tasks.filter(t => t.status === status)} onDelete={onDeleteTask} onEdit={onEditTask}/>
+          <Column key={status} status={status} tasks={tasks.filter(t => t.status === status)} onDelete={onDeleteTask} onEdit={onEditTask} searchQuery={searchQuery}/>
         ))}
       </div>
     </DndContext>
@@ -46,7 +47,7 @@ export function KanbanBoard({ tasks, onDragEnd, onDeleteTask, onEditTask }: Prop
   }
 }
 
-function Column({ status, tasks, onDelete, onEdit }: { status: string; tasks: Task[]; onDelete: (taskId: string) => void; onEdit: (taskId: string, newTitle: string, newStatus: Task["status"], newDescription:string) => void; }) {
+function Column({ status, tasks, onDelete, onEdit, searchQuery }: { status: string; tasks: Task[]; onDelete: (taskId: string) => void; onEdit: (taskId: string, newTitle: string, newStatus: Task["status"], newDescription:string) => void; searchQuery?: string; }) {
   const { setNodeRef } = useDroppable({
     id: status,
   });
@@ -65,21 +66,38 @@ function Column({ status, tasks, onDelete, onEdit }: { status: string; tasks: Ta
 
       <div className="space-y-2">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task}  onEdit={(newTitle, newStatus, newDescription) => onEdit(task.id, newTitle, newStatus, newDescription)} onDelete={() => onDelete(task.id)}/>
+          <TaskCard key={task.id} task={task}  onEdit={(newTitle, newStatus, newDescription) => onEdit(task.id, newTitle, newStatus, newDescription)} onDelete={() => onDelete(task.id)} searchQuery={searchQuery ?? ""}/>
         ))}
       </div>
     </div>
   );
 }
 
+function highlightMatch(text: string, query: string) {
+  if (!query || !text.toLowerCase().includes(query.toLowerCase())) return text;
+
+
+  const parts = text.split(new RegExp(`(${query})`, "gi"));
+  return parts.map((part, i) =>
+    part.toLowerCase() === query.toLowerCase() ? (
+      <span key={i} className="bg-yellow-200 font-semibold">{part}</span>
+    ) : (
+      part
+    )
+  );
+}
+
+
 export function TaskCard({
   task,
   onEdit,
   onDelete,
+  searchQuery,
 }: {
   task: Task;
   onEdit: (newTitle: string, newStatus: Task["status"], newDescription: string) => void;
   onDelete: () => void;
+  searchQuery: string;
 }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task.id,
@@ -109,11 +127,11 @@ export function TaskCard({
         <div className="flex justify-between items-start">
           <div className="cursor-grab flex-1" {...listeners} {...attributes}>
             <h3 className="text-sm font-semibold leading-tight">
-            {task.title}
+            {highlightMatch(task.title, searchQuery)}
             </h3>
             {task.description && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {task.description}
+              <p className="text-sm test-muted-foreground mt-1">
+                {highlightMatch(task.description, searchQuery)}
               </p>
             )}
           </div>
