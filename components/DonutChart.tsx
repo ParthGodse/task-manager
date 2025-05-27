@@ -1,6 +1,7 @@
 "use client";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import CountUp from "react-countup";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export function DonutChart({ percent }: { percent: number }) {
@@ -43,7 +44,13 @@ export function DonutChart({ percent }: { percent: number }) {
     <div className="relative w-54 h-60 text-foreground p-0">
       <Doughnut data={data} options={options}/>
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span className="text-3xl font-bold text-primary">{percent}%</span>
+        {/* <span className="text-3xl font-bold text-primary">{percent}%</span> */}
+        <CountUp
+          end={percent}
+          duration={1}
+          suffix="%"
+          className="text-3xl font-bold text-primary"
+        />
       </div>
     </div>
   );
