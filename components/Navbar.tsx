@@ -4,6 +4,10 @@ import { Input } from "@/components/ui/input";
 import { AddProjectModal } from "@/components/modals/AddProjectModal";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react"; 
+
 export function Navbar({ onAddProject, 
   onDeleteProject, 
   selectedId,
@@ -14,11 +18,23 @@ export function Navbar({ onAddProject,
   selectedId: string;
   onSearch: (query: string) => void;
 }) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
   return (
     <nav className="flex items-center justify-between px-6 py-4 border-b bg-white shadow-sm">
       {/* Left: Header Title */}
-      <div className="flex items-center gap-8">
-      <h1 className="text-3xl font-extrabold font-serif ml-10">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleLogout}
+          className="text-muted-foreground hover:text-red-500 ml-2 p-2 rounded hover:bg-red-100 transition-colors"
+          title="Logout">
+          <LogOut className="h-5 w-5" />
+        </button>
+      <h1 className="text-3xl font-extrabold font-serif ml-2">
         TaskManager
       </h1>
       {/* Middle: Search */}

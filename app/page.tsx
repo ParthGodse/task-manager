@@ -10,6 +10,7 @@ import { KanbanBoard } from "@/components/KanbanBoard";
 import { Project, Task } from "@/lib/types";
 import { toast } from "sonner";
 import CountUp from "react-countup";
+import { useRouter } from "next/navigation";
 
 const DonutChart = dynamic(() => import("@/components/DonutChart").then(mod => mod.DonutChart), {
   ssr: false,
@@ -29,7 +30,7 @@ export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const router = useRouter();
   const selected = projects.find((p) => p.id === selectedId);
 
   const done = selected ? selected.tasks.filter((t) => t.status === "done").length : 0;
@@ -37,7 +38,16 @@ export default function Home() {
   const percent = selected && selected.tasks.length > 0
   ? Math.round((done / selected.tasks.length) * 100)
   : 0;
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace("/login");
+      }
+    };
 
+    checkSession();
+  }, []);
   const handleAddProject = async (name: string) => {
   if (!name.trim()) {
     toast.error("Project name is required");
