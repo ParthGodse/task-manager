@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
 import { Task } from "@/lib/types";
-import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 
 export function EditTaskDialog({
@@ -39,7 +38,6 @@ export function EditTaskDialog({
 
   const handleSave = () => {
     onSave(title.trim(), status, description.trim());
-    toast("Task updated");
     setOpen(false);
   };
   useEffect(() => {
