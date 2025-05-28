@@ -48,6 +48,7 @@ export default function Home() {
 
     checkSession();
   }, []);
+  
   const handleAddProject = async (name: string) => {
   if (!name.trim()) {
     toast.error("Project name is required");

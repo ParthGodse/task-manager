@@ -34,7 +34,7 @@ export function Navbar({ onAddProject,
           title="Logout">
           <LogOut className="h-5 w-5" />
         </button>
-      <h1 className="text-3xl font-extrabold font-serif ml-2">
+      <h1 className="text-3xl font-bold ml-8">
         TaskManager
       </h1>
       {/* Middle: Search */}
@@ -51,7 +51,7 @@ export function Navbar({ onAddProject,
       <Button
           variant="ghost"
           size="icon"
-          className="text-red-500 hover:text-red-600 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary/90"
+          className="text-red-500 hover:text-red-500 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-red-100"
           onClick={() => {
             if (confirm("Delete this project?")) {
               onDeleteProject(selectedId);

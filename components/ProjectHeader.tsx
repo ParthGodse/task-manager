@@ -28,8 +28,7 @@ const selectedProject = projects.find((p) => p.id === selectedId);
         {/* Combined project name + dropdown */}
         <Select onValueChange={onSelect} value={selectedId}>
           <SelectTrigger
-            className="w-fit p-0 h-auto border-none bg-transparent text-2xl font-bold focus:ring-0 focus:ring-offset-0"
-          >
+            className="w-fit p-0 h-auto border-none bg-transparent text-2xl font-bold focus:ring-0 focus:ring-offset-0">
             <SelectValue placeholder={selectedProject?.name || "Select Project"}/>
           </SelectTrigger>
           <SelectContent>
