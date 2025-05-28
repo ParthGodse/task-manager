@@ -5,6 +5,7 @@ export interface Task {
   title: string
   status: 'todo' | 'in-progress' | 'done'
   description?: string
+  priority: 'low' | 'medium' | 'high';
 }
 
 export interface Project {

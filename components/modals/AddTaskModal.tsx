@@ -25,16 +25,17 @@ import { Plus } from "lucide-react";
 export function AddTaskModal({
   onAdd,
 }: {
-  onAdd: (title: string, status: "todo" | "in-progress" | "done", description: string) => void;
+  onAdd: (title: string, status: "todo" | "in-progress" | "done", description: string, priority: "low" | "medium" | "high") => void;
 }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState<"todo" | "in-progress" | "done">("todo");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<"low" | "medium" | "high">("low");
 
   const handleSubmit = () => {
     if (!title.trim()) return;
-    onAdd(title.trim(), status, description.trim());
+    onAdd(title.trim(), status, description.trim(), priority);
     setTitle("");
     setDescription("");
     setStatus("todo");
@@ -81,6 +82,17 @@ export function AddTaskModal({
               <SelectItem value="done">Done</SelectItem>
             </SelectContent>
           </Select>
+          <Select onValueChange={(value) => setPriority(value as "low" | "medium" | "high")} defaultValue="low">
+            <SelectTrigger>
+              <SelectValue placeholder="Select priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>
+
         </div>
 
         <DialogFooter>

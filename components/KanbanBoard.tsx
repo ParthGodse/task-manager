@@ -16,6 +16,7 @@ import {
 import { EditTaskDialog } from "@/components/modals/EditTaskDialog";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { ArrowStack } from "./ArrowStack";
 
 
 const STATUS = ["todo", "in-progress", "done"] as const;
@@ -24,7 +25,7 @@ type Props = {
   tasks: Task[];
   onDragEnd: (taskId: string, newStatus: Task["status"]) => void;
   onDeleteTask: (taskId: string) => void;
-  onEditTask: (taskId: string, newTitle: string, newStatus: Task["status"], newDescription: string) => void;
+  onEditTask: (taskId: string, newTitle: string, newStatus: Task["status"], newDescription: string, newPriority: "low" | "medium" | "high") => void;
   searchQuery?: string;
 };
 
@@ -47,7 +48,7 @@ export function KanbanBoard({ tasks, onDragEnd, onDeleteTask, onEditTask, search
   }
 }
 
-function Column({ status, tasks, onDelete, onEdit, searchQuery }: { status: string; tasks: Task[]; onDelete: (taskId: string) => void; onEdit: (taskId: string, newTitle: string, newStatus: Task["status"], newDescription:string) => void; searchQuery?: string; }) {
+function Column({ status, tasks, onDelete, onEdit, searchQuery }: { status: string; tasks: Task[]; onDelete: (taskId: string) => void; onEdit: (taskId: string, newTitle: string, newStatus: Task["status"], newDescription: string, newPriority: "low" | "medium" | "high") => void; searchQuery?: string; }) {
   const { setNodeRef } = useDroppable({
     id: status,
   });
@@ -66,7 +67,7 @@ function Column({ status, tasks, onDelete, onEdit, searchQuery }: { status: stri
 
       <div className="space-y-2">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task}  onEdit={(newTitle, newStatus, newDescription) => onEdit(task.id, newTitle, newStatus, newDescription)} onDelete={() => onDelete(task.id)} searchQuery={searchQuery ?? ""}/>
+          <TaskCard key={task.id} task={task}  onEdit={(newTitle, newStatus, newDescription, newPriority) => onEdit(task.id, newTitle, newStatus, newDescription, newPriority)} onDelete={() => onDelete(task.id)} searchQuery={searchQuery ?? ""}/>
         ))}
       </div>
     </div>
@@ -95,7 +96,7 @@ export function TaskCard({
   searchQuery,
 }: {
   task: Task;
-  onEdit: (newTitle: string, newStatus: Task["status"], newDescription: string) => void;
+  onEdit: (newTitle: string, newStatus: Task["status"], newDescription: string, newPriority: "low" | "medium" | "high") => void;
   onDelete: () => void;
   searchQuery: string;
 }) {
@@ -126,9 +127,12 @@ export function TaskCard({
       ><div className="absolute top-0 left-0 w-full h-1 bg-primary rounded-t-lg" />
         <div className="flex justify-between items-start">
           <div className="cursor-grab flex-1" {...listeners} {...attributes}>
-            <h3 className="text-sm font-semibold leading-tight">
-            {highlightMatch(task.title, searchQuery)}
-            </h3>
+            <div className="flex items-start justify-between">
+              <h3 className="text-sm font-semibold leading-tight">
+              {highlightMatch(task.title, searchQuery)}
+              </h3>
+              <ArrowStack level={task.priority} />
+            </div>
             {task.description && (
               <p className="text-sm test-muted-foreground mt-1">
                 {highlightMatch(task.description, searchQuery)}
@@ -157,8 +161,8 @@ export function TaskCard({
         task={task}
         open={open}
         setOpen={setOpen}
-        onSave={(newTitle, newStatus, newDescription) => {
-          onEdit(newTitle, newStatus, newDescription);
+        onSave={(newTitle, newStatus, newDescription, newPriority) => {
+          onEdit(newTitle, newStatus, newDescription, newPriority);
           setOpen(false);
         }}
         

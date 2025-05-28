@@ -30,20 +30,22 @@ export function EditTaskDialog({
   task: Task;
   open: boolean;
   setOpen: (v: boolean) => void;
-  onSave: (title: string, status: Task["status"], description: string) => void;
+  onSave: (title: string, status: Task["status"], description: string, priority: "low" | "medium" | "high") => void;
 }) {
   const [title, setTitle] = useState(task.title);
   const [status, setStatus] = useState<Task["status"]>(task.status);
   const [description, setDescription] = useState(task.description ?? "");
+  const [priority, setPriority] = useState<"low" | "medium" | "high">("low");
 
   const handleSave = () => {
-    onSave(title.trim(), status, description.trim());
+    onSave(title.trim(), status, description.trim(), priority);
     setOpen(false);
   };
   useEffect(() => {
   setTitle(task.title);
   setStatus(task.status);
   setDescription(task.description ?? "");
+  setPriority(task.priority ?? "low");
 }, [task]);
 
   return (
@@ -76,7 +78,17 @@ export function EditTaskDialog({
               <SelectItem value="in-progress">In Progress</SelectItem>
               <SelectItem value="done">Done</SelectItem>
             </SelectContent>
-          </Select>
+          <Select value={priority} onValueChange={(value) => setPriority(value as "low" | "medium" | "high")}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>       
+          </Select>       
         </div>
 
         <DialogFooter className="mt-4">

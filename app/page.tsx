@@ -76,7 +76,8 @@ export default function Home() {
   const handleAddTask = async (
   title: string,
   status: Task["status"],
-  description: string
+  description: string,
+  priority: "low" | "medium" | "high"
 ) => {
   if (!title.trim()) {
     toast.error("Task title is required");
@@ -92,6 +93,7 @@ export default function Home() {
       description,
       status,
       project_id: selectedId,
+      priority,
     })
     .select()
     .single();
@@ -168,7 +170,8 @@ const handleEditTask = async (
   taskId: string,
   newTitle: string,
   newStatus: Task["status"],
-  newDescription: string
+  newDescription: string,
+  newPriority: "low" | "medium" | "high"
 ) => {
   const { error } = await supabase
     .from("tasks")
@@ -176,6 +179,7 @@ const handleEditTask = async (
       title: newTitle,
       status: newStatus,
       description: newDescription,
+      priority: newPriority,
     })
     .eq("id", taskId);
 
@@ -192,7 +196,7 @@ const handleEditTask = async (
             ...proj,
             tasks: proj.tasks.map((t) =>
               t.id === taskId
-                ? { ...t, title: newTitle, status: newStatus, description: newDescription }
+                ? { ...t, title: newTitle, status: newStatus, description: newDescription, priority: newPriority }
                 : t
             ),
           }
@@ -225,7 +229,7 @@ useEffect(() => {
   const fetchProjects = async () => {
     const { data: projects, error } = await supabase
       .from("projects")
-      .select("id, name, tasks(id, title, description, status)")
+      .select("id, name, tasks(id, title, description, status, priority)")
       .order("created_at", { ascending: true });
 
     if (error) {

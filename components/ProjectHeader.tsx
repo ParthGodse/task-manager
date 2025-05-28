@@ -14,7 +14,7 @@ export function ProjectHeader({
   projects: { id: string; name: string }[];
   selectedId: string;
   onSelect: (id: string) => void;
-  onAddTask: (title: string, status: "todo" | "in-progress" | "done", description: string) => void;
+  onAddTask: (title: string, status: "todo" | "in-progress" | "done", description: string, priority: "low" | "medium" | "high") => void;
   onDeleteProject: (id: string) => void;
 }) {
 
