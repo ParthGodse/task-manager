@@ -49,15 +49,46 @@ export default function Home() {
     checkSession();
   }, []);
   
-  const handleAddProject = async (name: string) => {
+//   const handleAddProject = async (name: string) => {
+//   if (!name.trim()) {
+//     toast.error("Project name is required");
+//     return;
+//   }
+
+//   const { data, error } = await supabase
+//     .from("projects")
+//     .insert({ name })
+//     .select()
+//     .single();
+
+//   if (error) {
+//     toast.error("Failed to add project");
+//     console.error(error);
+//     return;
+//   }
+
+//   setProjects((prev) => [...prev, { ...data, tasks: [] }]);
+//   setSelectedId(data.id);
+
+//   toast.success(`Project "${name}" created`,{duration: 2500});
+// };
+const handleAddProject = async (name: string) => {
   if (!name.trim()) {
     toast.error("Project name is required");
     return;
   }
 
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+
+  if (userError || !userId) {
+    toast.error("User not authenticated");
+    return;
+  }
+
   const { data, error } = await supabase
     .from("projects")
-    .insert({ name })
+    .insert({ name, user_id: userId }) // Add the user_id here
     .select()
     .single();
 
@@ -70,8 +101,9 @@ export default function Home() {
   setProjects((prev) => [...prev, { ...data, tasks: [] }]);
   setSelectedId(data.id);
 
-  toast.success(`Project "${name}" created`,{duration: 2500});
+  toast.success(`Project "${name}" created`, { duration: 2500 });
 };
+
 
   const handleAddTask = async (
   title: string,
@@ -86,6 +118,14 @@ export default function Home() {
 
   if (!selectedId) return;
 
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+
+  if (userError || !userId) {
+    toast.error("User not authenticated");
+    return;
+  }
+
   const { data, error } = await supabase
     .from("tasks")
     .insert({
@@ -94,6 +134,7 @@ export default function Home() {
       status,
       project_id: selectedId,
       priority,
+      user_id: userId, // ✅ Add this
     })
     .select()
     .single();
@@ -112,8 +153,11 @@ export default function Home() {
     )
   );
 
-  toast.success(`Task "${title}" added to ${status.replace("-", " ")}`,{duration: 2500});
+  toast.success(`Task "${title}" added to ${status.replace("-", " ")}`, {
+    duration: 2500,
+  });
 };
+
 
 
   const handleDragTask = async (taskId: string, newStatus: Task["status"]) => {
@@ -142,6 +186,7 @@ export default function Home() {
   );
 
   toast.success(`📦 Task moved to ${newStatus.replace("-", " ")}`,{duration: 2500});
+  // toast(`📦 Task moved to ${newStatus.replace("-", " ")}`,{duration: 2500});
 };
 
 
