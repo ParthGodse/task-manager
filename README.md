@@ -2,9 +2,6 @@
 
 A clean, fast Kanban-style task manager. Create projects, add tasks, drag them across columns, and track completion with a donut chart.
 
-> **Mode:** This README documents a **no-auth** setup (public/anonymous access). An optional “Enable Auth later” section is included at the end if you want to lock it down by user.
-
----
 ![tm1](https://github.com/user-attachments/assets/3e20a508-b450-4693-b5da-83c7c8d5fb9a)
 
 ## Features
@@ -25,8 +22,6 @@ A clean, fast Kanban-style task manager. Create projects, add tasks, drag them a
 - **UI Utils:** sonner (toasts), lucide-react (icons), react-countup
 - **Charts:** Custom DonutChart component (SSR disabled via `next/dynamic`)
 
-
-### Getting Started
 
 ## Website
 
